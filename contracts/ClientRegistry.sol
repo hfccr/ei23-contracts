@@ -74,6 +74,10 @@ contract ClientRegistry {
         return clients[_clientId].ethAddress != address(0);
     }
 
+    function isClientAddressRegistered(address _clientAddress) public view returns (bool) {
+        return clientAddressToId[_clientAddress] != 0;
+    }
+
     function isWhitelisted(uint64 _clientId) public view returns (bool) {
         return clients[_clientId].verified;
     }
