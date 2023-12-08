@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
+import {IWFIL} from "./libraries/tokens/IWFIL.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ERC4626Upgradeable, IERC20Upgradeable, MathUpgradeable} from "./libraries/tokens/ERC4626Upgradeable.sol";
+
+abstract contract ClientSubsidyToken is Initializable, ERC4626Upgradeable {
+    IWFIL public WFIL;
+
+    /**
+     * @dev Contract initializer function.
+     * @param _wFIL WFIL token implementation
+     */
+    function __lpFILToken_init(address _wFIL) internal onlyInitializing {
+        __ERC20_init("LP FIL", "lpFIL");
+        __ERC4626_init(IERC20Upgradeable(_wFIL));
+        WFIL = IWFIL(_wFIL);
+    }
+
+    /**
+     * @notice Returns total amount of assets backing lpFIL, that includes
+     * buffered capital in the pool and pledged subsidy to the clients.
+     */
+    function totalAssets() public view virtual override returns (uint256) {}
+}
