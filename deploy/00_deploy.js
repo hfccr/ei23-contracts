@@ -13,17 +13,30 @@ module.exports = async ({ deployments }) => {
     // const tokensToBeMinted = networkConfig[chainId]["tokensToBeMinted"]
 
     //deploy Simplecoin
-    const ClientRegistry = await deploy("ClientRegistry", {
+    const clientRegistry = await deploy("ClientRegistry", {
         from: wallet.address,
         args: [],
         log: true,
     })
 
-    const StorageProviderRegistry = await deploy("StorageProviderRegistry", {
+    const storageProviderRegistry = await deploy("StorageProviderRegistry", {
         from: wallet.address,
         args: [],
         log: true,
     })
+
+    const subsidyDao = await deploy("SubsidyDao", {
+        from: wallet.address,
+        args: [],
+        log: true,
+    })
+
+    const subsidyDaoContract = await ethers.getContractAt("SubsidyDao", subsidyDao.address)
+
+    await (await subsidyDaoContract.setClientRegistry(clientRegistry.address)).wait()
+    await (
+        await subsidyDaoContract.setStorageProviderRegistry(storageProviderRegistry.address)
+    ).wait()
 
     // //deploy Simplecoin
     // const simpleCoin = await deploy("SimpleCoin", {
