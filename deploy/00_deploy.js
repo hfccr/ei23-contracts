@@ -19,6 +19,12 @@ module.exports = async ({ deployments }) => {
         log: true,
     })
 
+    const StorageProviderRegistry = await deploy("StorageProviderRegistry", {
+        from: wallet.address,
+        args: [],
+        log: true,
+    })
+
     // //deploy Simplecoin
     // const simpleCoin = await deploy("SimpleCoin", {
     //     from: wallet.address,
