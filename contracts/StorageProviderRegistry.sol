@@ -13,11 +13,10 @@ contract StorageProviderRegistry {
     uint64[] public storageProvidersList;
     uint256 public whitelistedCount;
 
-    function register(uint64 _storageProviderId, string memory _verificationFormCID) public {
+    function register(uint64 _storageProviderId) public {
         StorageProviderTypes.StorageProvider storage storageProvider = storageProviders[
             _storageProviderId
         ];
-        storageProvider.verificationFormCID = _verificationFormCID;
         storageProvider.ethAddress = msg.sender;
         storageProviderAddressToId[msg.sender] = _storageProviderId;
         // TODO: accept deposit
@@ -48,8 +47,23 @@ contract StorageProviderRegistry {
         return storageProviders[_storageProviderId].ethAddress != address(0);
     }
 
+    function isStorageProviderAddressRegistered(
+        address _storageProviderAddress
+    ) public view returns (bool) {
+        return storageProviderAddressToId[_storageProviderAddress] != 0;
+    }
+
+    function getEthAddress(uint64 _storageProviderId) public view returns (address) {
+        return storageProviders[_storageProviderId].ethAddress;
+    }
+
     function isWhitelisted(uint64 _storageProviderId) public view returns (bool) {
         return whitelistedStorageProviders[_storageProviderId];
+    }
+
+    function isAddressWhitelisted(address _storageProviderAddress) public view returns (bool) {
+        uint64 storageProviderId = storageProviderAddressToId[_storageProviderAddress];
+        return whitelistedStorageProviders[storageProviderId];
     }
 
     function getWhitelistedStorageProviders() public view returns (uint64[] memory) {
@@ -62,5 +76,27 @@ contract StorageProviderRegistry {
             }
         }
         return whitelisted;
+    }
+
+    function getAllStorageProviders()
+        public
+        view
+        returns (StorageProviderTypes.StorageProvider[] memory)
+    {
+        StorageProviderTypes.StorageProvider[]
+            memory allStorageProviders = new StorageProviderTypes.StorageProvider[](
+                storageProvidersList.length
+            );
+        for (uint64 i = 0; i < storageProvidersList.length; i++) {
+            allStorageProviders[i] = storageProviders[storageProvidersList[i]];
+        }
+        return allStorageProviders;
+    }
+
+    function getStorageProviderByAddress(
+        address _storageProviderAddress
+    ) public view returns (StorageProviderTypes.StorageProvider memory) {
+        uint64 storageProviderId = storageProviderAddressToId[_storageProviderAddress];
+        return storageProviders[storageProviderId];
     }
 }
