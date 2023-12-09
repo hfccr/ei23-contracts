@@ -5,6 +5,7 @@ library SubsidyDaoTypes {
     struct ClientWhitelistRequest {
         uint64 clientId;
         bool approved;
+        address ethAddress;
     }
 
     struct ClientBlacklistRequest {
@@ -15,6 +16,7 @@ library SubsidyDaoTypes {
     struct StorageProviderWhitelistRequest {
         uint64 storageProviderId;
         bool approved;
+        address ethAddress;
     }
 
     struct StorageProviderBlacklistRequest {
@@ -24,6 +26,7 @@ library SubsidyDaoTypes {
 
     struct ClientAllocationRequest {
         uint64 clientId;
+        address ethAddress;
         uint256 allocation;
         bool approved;
     }

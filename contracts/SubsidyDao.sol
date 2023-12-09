@@ -40,6 +40,7 @@ contract SubsidyDao is AccessControl {
         ];
         request.clientId = _clientId;
         request.approved = false;
+        request.ethAddress = clientRegistry.getEthAddress(_clientId);
         clientWhitelistRequestCount++;
     }
 
@@ -71,6 +72,7 @@ contract SubsidyDao is AccessControl {
             ];
         request.storageProviderId = _storageProviderId;
         request.approved = false;
+        request.ethAddress = storageProviderRegistry.getEthAddress(_storageProviderId);
         storageProviderWhitelistRequestCount++;
     }
 
@@ -102,6 +104,7 @@ contract SubsidyDao is AccessControl {
         request.clientId = _clientId;
         request.allocation = _allocation;
         request.approved = false;
+        request.ethAddress = clientRegistry.getEthAddress(_clientId);
         clientAllocationRequestCount++;
     }
 
@@ -117,6 +120,7 @@ contract SubsidyDao is AccessControl {
         request.clientId = clientRegistry.getClientId(_clientAddress);
         request.allocation = _allocation;
         request.approved = false;
+        request.ethAddress = _clientAddress;
         clientAllocationRequestCount++;
     }
 
@@ -151,6 +155,26 @@ contract SubsidyDao is AccessControl {
             requests[i] = clientWhitelistRequestMap[i];
         }
         return requests;
+    }
+
+    function doesClientHaveAllocationRequest(address ethAddress) public view returns (bool) {
+        for (uint256 i = 0; i < clientAllocationRequestCount; i++) {
+            if (clientAllocationRequestMap[i].clientId == clientRegistry.getClientId(ethAddress)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function getClientAllocationRequestForClient(
+        uint64 _clientId
+    ) public view returns (SubsidyDaoTypes.ClientAllocationRequest memory) {
+        for (uint256 i = 0; i < clientAllocationRequestCount; i++) {
+            if (clientAllocationRequestMap[i].clientId == _clientId) {
+                return clientAllocationRequestMap[i];
+            }
+        }
+        revert("No allocation request found for client");
     }
 
     function getClientAllocationRequests()
