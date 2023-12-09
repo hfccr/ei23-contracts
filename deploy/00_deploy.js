@@ -31,6 +31,20 @@ module.exports = async ({ deployments }) => {
         log: true,
     })
 
+    const retrievalRoyalty = await deploy("RetrievalRoyalty", {
+        from: wallet.address,
+        args: [],
+        log: true,
+    })
+
+    const liquidStaking = await deploy("LiquidStaking", {
+        from: wallet.address,
+        args: [],
+        log: true,
+    })
+
+    const liquidStakingContract = await ethers.getContractAt("LiquidStaking", liquidStaking.address)
+
     const subsidyDaoContract = await ethers.getContractAt("SubsidyDao", subsidyDao.address)
 
     await (await subsidyDaoContract.setClientRegistry(clientRegistry.address)).wait()
@@ -49,6 +63,16 @@ module.exports = async ({ deployments }) => {
 
     await (await clientRegistryContract.setSubsidyDao(subsidyDao.address)).wait()
     await (await storageProviderRegistryContract.setSubsidyDao(subsidyDao.address)).wait()
+
+    console.log("Set client registry address on liquid staking")
+    await (await liquidStakingContract.setClientRegistry(clientRegistry.address)).wait()
+    console.log("Set retrieval royalty reg address on liquid staking")
+    await (await liquidStakingContract.setRetrievalRoyalty(retrievalRoyalty.address)).wait()
+    console.log("Set storage provider reg address on liquid staking")
+    await (
+        await liquidStakingContract.setStorageProviderRegistry(storageProviderRegistry.address)
+    ).wait()
+    console.log("Done")
 
     // //deploy Simplecoin
     // const simpleCoin = await deploy("SimpleCoin", {
