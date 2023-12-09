@@ -3,8 +3,10 @@ pragma solidity ^0.8.17;
 
 import {StorageProviderTypes} from "./types/StorageProviderTypes.sol";
 import {MinerAPI, MinerTypes, CommonTypes} from "@zondax/filecoin-solidity/contracts/v0.8/MinerAPI.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {SubsidyDao} from "./SubsidyDao.sol";
 
-contract StorageProviderRegistry {
+contract StorageProviderRegistry is AccessControl {
     mapping(uint64 => StorageProviderTypes.StorageProvider) public storageProviders;
     mapping(uint64 => StorageProviderTypes.StorageProviderSubsidy) public subsidies;
 
@@ -12,6 +14,15 @@ contract StorageProviderRegistry {
     mapping(uint64 => bool) public whitelistedStorageProviders;
     uint64[] public storageProvidersList;
     uint256 public whitelistedCount;
+    SubsidyDao subsidyDao;
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function setSubsidyDao(address _subsidyDaoAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        subsidyDao = SubsidyDao(_subsidyDaoAddress);
+    }
 
     function register(uint64 _storageProviderId) public {
         StorageProviderTypes.StorageProvider storage storageProvider = storageProviders[
@@ -21,6 +32,7 @@ contract StorageProviderRegistry {
         storageProviderAddressToId[msg.sender] = _storageProviderId;
         // TODO: accept deposit
         storageProvidersList.push(_storageProviderId);
+        subsidyDao.createStorageProviderWhitelistRequest(_storageProviderId);
     }
 
     function whitelist(uint64 _storageProviderId) public {

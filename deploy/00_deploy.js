@@ -38,6 +38,18 @@ module.exports = async ({ deployments }) => {
         await subsidyDaoContract.setStorageProviderRegistry(storageProviderRegistry.address)
     ).wait()
 
+    const clientRegistryContract = await ethers.getContractAt(
+        "ClientRegistry",
+        clientRegistry.address
+    )
+    const storageProviderRegistryContract = await ethers.getContractAt(
+        "StorageProviderRegistry",
+        storageProviderRegistry.address
+    )
+
+    await (await clientRegistryContract.setSubsidyDao(subsidyDao.address)).wait()
+    await (await storageProviderRegistryContract.setSubsidyDao(subsidyDao.address)).wait()
+
     // //deploy Simplecoin
     // const simpleCoin = await deploy("SimpleCoin", {
     //     from: wallet.address,

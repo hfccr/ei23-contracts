@@ -3,8 +3,10 @@ pragma solidity ^0.8.17;
 
 import {ClientTypes} from "./types/ClientTypes.sol";
 import {MinerAPI, MinerTypes, CommonTypes} from "@zondax/filecoin-solidity/contracts/v0.8/MinerAPI.sol";
+import {SubsidyDao} from "./SubsidyDao.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract ClientRegistry {
+contract ClientRegistry is AccessControl {
     // apply
     // verified
     // blacklisted
@@ -32,6 +34,16 @@ contract ClientRegistry {
 
     uint256 allocationLimit = 10000;
 
+    SubsidyDao subsidyDao;
+
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function setSubsidyDao(address _subsidyDaoAddress) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        subsidyDao = SubsidyDao(_subsidyDaoAddress);
+    }
+
     function register(uint64 _clientId, string memory name) public {
         ClientTypes.Client storage client = clients[_clientId];
         // client.verificationFormCID = _verificationFormCID;
@@ -41,6 +53,7 @@ contract ClientRegistry {
         // TODO: accept deposit
         clientsList.push(_clientId);
         // TODO: add whitelist request to dao
+        subsidyDao.createClientWhitelistRequest(_clientId);
     }
 
     function whitelist(uint64 _clientId) public {
@@ -58,6 +71,18 @@ contract ClientRegistry {
         require(_newAllocation < allocation.allocationLimit, "allocation exceeds limit");
         allocation.allocation = _newAllocation;
         // TODO: Generate tokens and give to client
+    }
+
+    function doesClientHaveAllocation(uint64 _clientId) public view returns (bool) {
+        return allocations[_clientId].allocation > 0;
+    }
+
+    function getClientAllocation(uint64 _clientId) public view returns (uint256) {
+        return allocations[_clientId].allocation;
+    }
+
+    function getClientAllocationByAddress(address _clientAddress) public view returns (uint256) {
+        return allocations[clientAddressToId[_clientAddress]].allocation;
     }
 
     function blacklist(uint64 _clientId) public {
@@ -89,6 +114,10 @@ contract ClientRegistry {
 
     function getEthAddress(uint64 _clientId) public view returns (address) {
         return clients[_clientId].ethAddress;
+    }
+
+    function getClientId(address _clientAddress) public view returns (uint64) {
+        return clientAddressToId[_clientAddress];
     }
 
     function getWhitelistedClients() public view returns (uint64[] memory) {

@@ -105,6 +105,21 @@ contract SubsidyDao is AccessControl {
         clientAllocationRequestCount++;
     }
 
+    function createClientAllocationRequestByAddress(
+        address _clientAddress,
+        uint256 _allocation
+    ) public {
+        // Client must be whitelisted
+        require(clientRegistry.isAddressWhitelisted(_clientAddress), "Client not whitelisted");
+        SubsidyDaoTypes.ClientAllocationRequest storage request = clientAllocationRequestMap[
+            clientAllocationRequestCount
+        ];
+        request.clientId = clientRegistry.getClientId(_clientAddress);
+        request.allocation = _allocation;
+        request.approved = false;
+        clientAllocationRequestCount++;
+    }
+
     function approveClientAllocationRequest(uint256 _requestIndex) public {
         // Client must be whitelisted
         require(
