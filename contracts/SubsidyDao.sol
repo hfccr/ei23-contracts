@@ -32,15 +32,15 @@ contract SubsidyDao is AccessControl {
         storageProviderRegistry = StorageProviderRegistry(_storageProviderRegistryAddress);
     }
 
-    function createClientWhitelistRequest(uint64 _clientId) public {
+    function createClientWhitelistRequest(uint64 _clientId, address ethAddress) public {
         // Client must be registered before whitelist
-        require(clientRegistry.isClientIdRegistered(_clientId), "Client not registered");
+        // require(clientRegistry.isClientIdRegistered(_clientId), "Client not registered");
         SubsidyDaoTypes.ClientWhitelistRequest storage request = clientWhitelistRequestMap[
             clientWhitelistRequestCount
         ];
         request.clientId = _clientId;
         request.approved = false;
-        request.ethAddress = clientRegistry.getEthAddress(_clientId);
+        request.ethAddress = ethAddress;
         clientWhitelistRequestCount++;
     }
 
@@ -62,10 +62,10 @@ contract SubsidyDao is AccessControl {
 
     function createStorageProviderWhitelistRequest(uint64 _storageProviderId) public {
         // storage provider must be registered before whitelisting
-        require(
-            storageProviderRegistry.isStorageProviderRegistered(_storageProviderId),
-            "Storage provider not registered"
-        );
+        // require(
+        //     storageProviderRegistry.isStorageProviderRegistered(_storageProviderId),
+        //     "Storage provider not registered"
+        // );
         SubsidyDaoTypes.StorageProviderWhitelistRequest
             storage request = storageProviderWhitelistRequestMap[
                 storageProviderWhitelistRequestCount

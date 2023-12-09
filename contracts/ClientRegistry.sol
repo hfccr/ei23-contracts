@@ -53,7 +53,7 @@ contract ClientRegistry is AccessControl {
         // TODO: accept deposit
         clientsList.push(_clientId);
         // TODO: add whitelist request to dao
-        subsidyDao.createClientWhitelistRequest(_clientId);
+        subsidyDao.createClientWhitelistRequest(_clientId, msg.sender);
     }
 
     function whitelist(uint64 _clientId) public {
