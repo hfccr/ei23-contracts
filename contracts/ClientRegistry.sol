@@ -30,12 +30,13 @@ contract ClientRegistry {
 
     uint256 public whitelistedCount;
 
-    uint256 allocationLimit = 100;
+    uint256 allocationLimit = 10000;
 
-    function register(uint64 _clientId, string memory _verificationFormCID) public {
+    function register(uint64 _clientId, string memory name) public {
         ClientTypes.Client storage client = clients[_clientId];
-        client.verificationFormCID = _verificationFormCID;
+        // client.verificationFormCID = _verificationFormCID;
         client.ethAddress = msg.sender;
+        client.name = name;
         clientAddressToId[msg.sender] = _clientId;
         // TODO: accept deposit
         clientsList.push(_clientId);
@@ -55,7 +56,7 @@ contract ClientRegistry {
     function allocateSubsidyToClient(uint64 _clientId, uint256 _newAllocation) public {
         ClientTypes.ClientAllocation storage allocation = allocations[_clientId];
         require(_newAllocation < allocation.allocationLimit, "allocation exceeds limit");
-        allocation.allocation = allocation.allocation + _newAllocation;
+        allocation.allocation = _newAllocation;
         // TODO: Generate tokens and give to client
     }
 
@@ -82,6 +83,10 @@ contract ClientRegistry {
         return clients[_clientId].verified;
     }
 
+    function isAddressWhitelisted(address _clientAddress) public view returns (bool) {
+        return clients[clientAddressToId[_clientAddress]].verified;
+    }
+
     function getEthAddress(uint64 _clientId) public view returns (address) {
         return clients[_clientId].ethAddress;
     }
@@ -96,5 +101,19 @@ contract ClientRegistry {
             }
         }
         return whitelisted;
+    }
+
+    function getAllClients() public view returns (ClientTypes.Client[] memory) {
+        ClientTypes.Client[] memory allClients = new ClientTypes.Client[](clientsList.length);
+        for (uint64 i = 0; i < clientsList.length; i++) {
+            allClients[i] = clients[clientsList[i]];
+        }
+        return allClients;
+    }
+
+    function getClientByAddress(
+        address _clientAddress
+    ) public view returns (ClientTypes.Client memory) {
+        return clients[clientAddressToId[_clientAddress]];
     }
 }

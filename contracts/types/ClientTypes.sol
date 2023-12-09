@@ -10,13 +10,13 @@ library ClientTypes {
         string verificationFormCID;
         bool blacklisted;
         address ethAddress;
+        string name;
     }
 
     struct ClientAllocation {
         uint256 allocation; // Current subsidy token allocation left
         uint256 allocationLimit; // Subsidy token allocation
         uint256 dailyAllocation; // daily subsidy allocation for Clients
-        uint256 accruedRewards; // Accrued rewards in retrieval royalties
     }
 
     struct AllocationRequest {
